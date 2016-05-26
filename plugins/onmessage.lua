@@ -12,14 +12,14 @@ local function saveFirstWarn(chat, user, media, ln)
 end
 
 pre_process = function(msg, ln)
-    if is_blocked(msg.from.id) then
-        print('Bloqueado:', msg.from.id)
+    if msg.from.id and is_blocked(msg.from.id) then
+        print('Blocked:', msg.from.id)
         return msg, true --if an user is blocked, don't go through plugins
     end
     if msg.cb then
         return msg
     end
-    if msg.chat.type ~= 'private' then
+    if msg.chat.type ~= 'private' and not is_mod(msg) then
         local spamhash = 'spam:'..msg.chat.id..':'..msg.from.id
         local msgs = tonumber(db:get(spamhash)) or 0
         if msgs == 0 then msgs = 1 end
@@ -43,12 +43,7 @@ pre_process = function(msg, ln)
     		    end
     		    --if kicked/banned, send a message
     		    if res then
-    		        if action == 'ban' then
-    		            cross.addBanList(msg.chat.id, msg.from.id, name, lang[ln].preprocess.flood_motivation)
-    		            message = make_text(lang[ln].preprocess.flood_ban, name:mEscape()) 
-    		        else
-    		            message = make_text(lang[ln].preprocess.flood_kick, name:mEscape())
-    		        end
+    		        if action == 'ban' then message = make_text(lang[ln].preprocess.flood_ban, name:mEscape()) else message = make_text(lang[ln].preprocess.flood_kick, name:mEscape()) end
     		        api.sendMessage(msg.chat.id, message)
     		    end
     		end
@@ -78,12 +73,7 @@ pre_process = function(msg, ln)
     		    end
     		    if res then
     		        local message
-    		        if status == 'ban' then
-    		            cross.addBanList(msg.chat.id, msg.from.id, name, lang[ln].preprocess.media_motivation)
-    		            message = make_text(lang[ln].preprocess.media_ban, name:mEscape())
-    		        else
-    		            message = make_text(lang[ln].preprocess.media_kick, name:mEscape())
-    		        end
+    		        if status == 'ban' then message = make_text(lang[ln].preprocess.media_ban, name:mEscape()) else message = make_text(lang[ln].preprocess.media_kick, name:mEscape()) end
     		        api.sendMessage(msg.chat.id, message, true)
     		    end
     		end
@@ -93,9 +83,7 @@ pre_process = function(msg, ln)
             local name = msg.from.first_name
             if msg.from.username then name = name..' (@'..msg.from.username..')' end
             local rtl = '‮'
-    	    local last_name = 'x'
-    	    if msg.from.last_name then last_name = msg.from.last_name end
-    	    local check = msg.text:find(rtl..'+') or msg.from.first_name:find(rtl..'+') or last_name:find(rtl..'+')
+    	    local check = msg.text:find(rtl..'+') or msg.from.first_name:find(rtl..'+')
     	    if check ~= nil then
     		    local res = api.kickUser(msg.chat.id, msg.from.id, ln)
     		    if res then

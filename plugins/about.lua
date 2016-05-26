@@ -1,28 +1,25 @@
 local action = function(msg, blocks, ln)
 	--ignore if via pm
 	if msg.chat.type == 'private' then
-    	return
+		api.sendMessage(msg.from.id, lang[ln].pv)
+    	return nil
     end
-    
     local hash = 'chat:'..msg.chat.id..':about'
     if blocks[1] == 'about' then
-    	local out = cross.getAbout(msg.chat.id, ln)
+    	--ignore if is locked and is not mod
     	if is_locked(msg, 'About') and not is_mod(msg) then
-    		api.sendMessage(msg.from.id, out, true)
-    	else
-        	api.sendReply(msg, out, true)
-        end
+    		return nil
+    	end
+    	--load the about
+        local out = cross.getAbout(msg.chat.id, ln)
+        api.sendReply(msg, out, true)
         mystat('/about')
     end
-    
-    if not is_mod(msg) then
-		return
-	end
-	
 	if blocks[1] == 'addabout' then
-		if not blocks[2] then
-			api.sendReply(msg, lang[ln].setabout.no_input_add)
-			return
+		--ignore if not mod
+		if not is_mod(msg) then
+			api.sendReply(msg, make_text(lang[ln].not_mod), true)
+			return nil
 		end
 	    --load about
 	    about = db:get(hash)
@@ -44,37 +41,36 @@ local action = function(msg, blocks, ln)
     end
 	if blocks[1] == 'setabout' then
 		local input = blocks[2]
+		print(input)
 		--ignore if not mod
-		
+		if not is_mod(msg) then
+			api.sendReply(msg, make_text(lang[ln].not_mod), true)
+			return nil
+		end
 		--ignore if not text
 		if not input then
-			api.sendReply(msg, lang[ln].setabout.no_input_set, true)
-			return
+			api.sendReply(msg, make_text(lang[ln].setabout.no_input_set), true)
+			return true
 		end
 		--check if the mod want to clean the about text
 		if input == 'clean' then
 			db:del(hash)
-			api.sendReply(msg, lang[ln].setabout.clean)
-			return
+			api.sendReply(msg, make_text(lang[ln].setabout.clean))
+			return nil
 		end
 		
 		--set the new about
-		local res, code = api.sendReply(msg, make_text(lang[ln].setabout.new, input), true)
+		local res = api.sendReply(msg, make_text(lang[ln].setabout.new, input), true)
 		if not res then
-			if code == 118 then
-				api.sendMessage(msg.chat.id, lang[ln].bonus.too_long)
-			else
-				api.sendMessage(msg.chat.id, lang[ln].breaks_markdown, true)
-			end
+			api.sendReply(msg, lang[ln].breaks_markdown, true)
 		else
 			db:set(hash, input)
-			local id = res.result.message_id
-			api.editMessageText(msg.chat.id, id, lang[ln].setabout.about_setted, false, true)
 		end
 		mystat('/setabout')
 	end
 
 end
+
 
 return {
 	action = action,

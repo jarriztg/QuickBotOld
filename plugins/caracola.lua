@@ -18,8 +18,7 @@ end
   elseif num == 3 then
 	api.sendSticker(msg.chat.id,  './caracola/nocreo.webp')
        end
-    end
-  
+  end
     
  return {
 	action = action,
