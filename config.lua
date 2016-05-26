@@ -1,6 +1,6 @@
 return {
-	bot_api_key = '',
-	admin = 0,
+	bot_api_key = '213210238:AAEr7bk9kSKq3LHn64bYvuuyF9GHh3uAP9w',
+	admin = 189041244,
 	support = 0, -- id de soporte (opcional)
 	channel = '@MoDeRaToRz', -- tu canal (opcional)
 	lang = 'languages.lua',
