@@ -1,6 +1,6 @@
 return {
-	bot_api_key = '',
-	admin = 0,
+	bot_api_key = 'readapikey',
+	admin = readowner,
 	log_chat = -122946087,
 	channel = '@MoDeRaToRz',
 	lang = 'languages.lua',
@@ -12,7 +12,7 @@ return {
 		'banhammer.lua',
 		'users.lua',
 		'help.lua',
-    	'error.lua',
+    		'error.lua',
 		'rules.lua',
 		'settings.lua',
 		'about.lua',
